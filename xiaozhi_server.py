@@ -135,7 +135,7 @@ class DeepSeekReply:
 class EdgeTTSTextToSpeech:
     def __init__(self):
         self.voice = "zh-CN-XiaoxiaoNeural"# zh-TW-HsiaoYuNeural
-        self.rate = '+16%'
+        self.rate = '-10%'
         self.volume = '+0%'
         self.pitch = '+0Hz'
 
