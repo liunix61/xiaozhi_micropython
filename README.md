@@ -1,0 +1,2 @@
+# xiaozhi_micropython
+基于大佬开源的micropython的xiaozhi，服务端使用funasr+edge-TTS+deepseek
