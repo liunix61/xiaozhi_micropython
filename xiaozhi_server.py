@@ -10,11 +10,145 @@ from funasr.utils.postprocess_utils import rich_transcription_postprocess
 import base64
 import requests
 import json
+from pydub import AudioSegment
 
 from zhipuai import ZhipuAI
 
+import uuid
+#替换自己火山引擎（豆包）文字转语音的账号信息appid，access_token,cluster
+class ByteDanceTTS:
+    def __init__(self, appid="xxx", access_token="xxx", cluster="xxx", voice_type="BV025_streaming", rate="16000"):
+        self.appid = appid
+        self.access_token = access_token
+        self.cluster = cluster
+        self.voice_type = voice_type
+        self.rate = rate #可以根据需要选择8000,16000,24000
+        self.host = "openspeech.bytedance.com"
+        self.api_url = f"https://{self.host}/api/v1/tts"
+        self.header = {"Authorization": f"Bearer;{self.access_token}"}
+
+    def generate_tts(self, client_socket, text, output_file="output.wav", speed_ratio=1.0, volume_ratio=1.0, pitch_ratio=1.0):
+        request_json = {
+            "app": {
+                "appid": self.appid,
+                "token": "access_token",
+                "cluster": self.cluster
+            },
+            "user": {
+                "uid": "388808087185088"
+            },
+            "audio": {
+                "voice_type": self.voice_type,
+                "rate":self.rate,
+                "encoding": "wav",
+                "speed_ratio": speed_ratio,
+                "volume_ratio": volume_ratio,
+                "pitch_ratio": pitch_ratio,
+            },
+            "request": {
+                "reqid": str(uuid.uuid4()),
+                "text": text,
+                "text_type": "plain",
+                "operation": "query",
+                "with_frontend": 1,
+                "frontend_type": "unitTson"
+            }
+        }
+
+        try:
+            resp = requests.post(self.api_url, json.dumps(request_json), headers=self.header)
+            #print(f"resp body: \n{resp.json()}")
+            if "data" in resp.json():
+                data = resp.json()["data"]
+                with open(output_file, "wb") as file_to_save:
+                    file_to_save.write(base64.b64decode(data))
+                print(f"TTS audio saved to {output_file}")
+            else:
+                print("Failed to generate TTS audio.")
+        except Exception as e:
+            print(f"⚠️ TTS生成失败: {str(e)}")
+            time.sleep(0.03)# 结束客户端等待服务器返回播放数据
+            client_socket.sendall("END_OF_STREAM\n".encode())
+#替换自己baiduASR的api-key,secret-key
+class BaiduTextToSpeech:
+    def __init__(self, api_key="xxx", secret_key="xxx"):
+        self.api_key = api_key
+        self.secret_key = secret_key
+        self.access_token = self.get_access_token()
+
+    def get_access_token(self):
+        """
+        使用 AK，SK 生成鉴权签名（Access Token）
+        :return: access_token，或是 None（如果错误）
+        """
+        url = "https://aip.baidubce.com/oauth/2.0/token"
+        params = {
+            "grant_type": "client_credentials",
+            "client_id": self.api_key,
+            "client_secret": self.secret_key,
+        }
+        try:
+            response = requests.post(url, params=params)
+            response.raise_for_status()  # 检查请求是否成功
+            return response.json().get("access_token")
+        except requests.exceptions.RequestException as e:
+            print(f"获取 Access Token 失败: {e}")
+            return None
+
+    def text_to_speech(
+        self,
+        client_socket,
+        text,
+        cuid="DWG7uKNsAxmKn07kwWq4w7QyjieKnb3R",
+        ctp=1,
+        lan="zh",
+        spd=5,
+        pit=5,
+        vol=5,
+        per=0,
+        aue=6,
+    ):
+        """
+        将文本转换为语音
+        :param text: 要转换的文本
+        :param cuid: 用户唯一标识
+        :param ctp: 客户端类型
+        :param lan: 语言
+        :param spd: 语速
+        :param pit: 音调
+        :param vol: 音量
+        :param per: 发音人
+        :param aue: 音频格式
+        :return: 音频文件的二进制数据，如果失败则返回 None
+        """
+        if not self.access_token:
+            print("Access Token 无效，无法进行文本转语音")
+            return None
+
+        url = "https://tsn.baidu.com/text2audio"
+        payload = f"tex={text}&tok={self.access_token}&cuid={cuid}&ctp={ctp}&lan={lan}&spd={spd}&pit={pit}&vol={vol}&per={per}&aue={aue}"
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "*/*",
+        }
+
+        try:
+            response = requests.post(url, headers=headers, data=payload.encode("utf-8"))
+            response.raise_for_status()  # 检查请求是否成功
+            if response.content:
+            # 保存音频文件
+                with open("output.wav", "wb") as f:
+                    f.write(response.content)
+                print("音频文件已保存为 output.wav")
+            else:
+                print("文本转语音失败，未生成音频文件")
+        except requests.exceptions.RequestException as e:
+            print(f"⚠️ TTS生成失败: {str(e)}")
+            time.sleep(0.03)# 结束客户端等待服务器返回播放数据
+            client_socket.sendall("END_OF_STREAM\n".encode())
+#替换自己的chatGLM的api-key
 class ZhipuAIClient:
-    def __init__(self, api_key="xxx"): #替换为自己的chatglm apikey
+    def __init__(self, api_key="xxx"):
         self.client = ZhipuAI(api_key=api_key)
 
     def generate_slogan(self, client_socket, product_info):
@@ -22,7 +156,7 @@ class ZhipuAIClient:
             response = self.client.chat.completions.create(
                 model="glm-4-flash",  # 请填写您要调用的模型名称
                 messages=[
-                    {"role": "user", "content": "你是一个叫小智的温柔女朋友，声音好听，只要中文，爱用网络梗，最后抛出一个提问。"},
+                    {"role": "user", "content": "你是一个叫小智的台湾女孩，有点机车，声音好听，爱用网络梗，最后抛出一个提问。"},
                     {"role": "user", "content": product_info},
                 ],
                 stream=True,
@@ -42,11 +176,11 @@ class ZhipuAIClient:
             # TTS生成失败，结束客户端等待服务器返回播放数据
             time.sleep(0.03)
             client_socket.sendall("END_OF_STREAM\n".encode())
-        
+#替换自己的baidustt的api-key，secret-key        
 class SpeechRecognizer:
     """百度语音识别API封装类"""
 
-    def __init__(self, api_key="xxx", secret_key="xxx"): #替换为自己baiduASR的api-key和secret-key
+    def __init__(self, api_key="xxx", secret_key="xxx"):
         """
         初始化语音识别器
         :param api_key: 百度API Key
@@ -228,10 +362,10 @@ class FunasrSpeechToText:
             time.sleep(0.03)# 结束客户端等待服务器返回播放数据
             client_socket.sendall("END_OF_STREAM\n".encode())
 
-# deepseek 的回复
+# deepseek 的回复，替换自己的api-key
 class DeepSeekReply:
     def __init__(self):
-        self.api_key = "sk-xxx"替换为自己deepseek的api-key
+        self.api_key = "sk-xxx"
         self.base_url = "https://api.deepseek.com/v1"
         # self.role_setting = "（习惯简短表达，不要多行，不要回车，你是一个叫小智的温柔女朋友，声音好听，只要中文，爱用网络梗，最后抛出一个提问。）"
         # self.role_setting = "（习惯简短表达，最后抛出一个提问。）"
@@ -363,9 +497,11 @@ class XiaoZhi_Ai_TCPServer:
         self.fstt = SpeechRecognizer()# BaiduASR 语音识别，语音转文字
         #self.dsr = DeepSeekReply()# deepseek 的回复
         self.dsr = ZhipuAIClient()# chatGLM 的回复
-        self.etts = EdgeTTSTextToSpeech()# EdgeTTS 文字生成语音
+        #self.etts = EdgeTTSTextToSpeech()# EdgeTTS 文字生成语音
         self.mapl = MAX98357AudioPlay()# MAX98357 播放音频
-        self.fftw = FFmpegToWav(sample_rate=8000, channels=1, bit_depth=16)# # FFmpeg 音频转换器24100, 44100,32000
+        #self.fftw = FFmpegToWav(sample_rate=8000, channels=1, bit_depth=16)# # FFmpeg 音频转换器24100, 44100,32000
+        #self.audioprocess = BaiduTextToSpeech() #baidu audio send to esp32
+        self.audioprocess =ByteDanceTTS()
         self.inmp441tw = INMP441ToWAV()
     def start(self):
         self.socket.bind((self.host, self.port))
@@ -393,15 +529,18 @@ class XiaoZhi_Ai_TCPServer:
                                 gdr_text = self.dsr.generate_slogan(conn, fstt_text)
                                 print("DeepSeek 的回复---：", gdr_text)
 
+                                # Baidu ASR 文字转语音 语音转发
+                                self.audioprocess.generate_tts(conn, gdr_text)
+
                                 # EdgeTTS 文字生成语音
-                                tts_path = self.etts.generate_audio(conn, gdr_text)
-                                print("EdgeTTS 音频地址---：", tts_path)
-                                # tts_path_file_size = os.path.getsize(tts_path)
+                                # tts_path = self.etts.generate_audio(conn, gdr_text)
+                                # print("EdgeTTS 音频地址---：", tts_path)
+                                # # tts_path_file_size = os.path.getsize(tts_path)
 
-                                # FFmpeg 音频转换器
-                                self.fftw.convert_to_wav(conn, tts_path, 'output.wav')
+                                # # FFmpeg 音频转换器
+                                # self.fftw.convert_to_wav(conn, tts_path, 'output.wav')
 
-                                # MAX98357 播放音频'audio/textlen44-43380.wav'
+                                # # MAX98357 播放音频'audio/textlen44-43380.wav'
                                 self.mapl.send_wav_file(conn, 'output.wav')  # gada
                             else:
                                 print('FunASR语音识别为空，继续讲话....')
