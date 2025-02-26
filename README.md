@@ -1,7 +1,11 @@
-# xiaozhi_micropython
+#xiaozhi_micropython
 基于大佬开源的micropython的xiaozhi，运行在xiao-esp32s3-sense
 
-client端使用xiao-esp32s3-sense+inmp441+max98357
+##client端：
+使用xiao-esp32s3-sense+inmp441+max98357
 
-server端使用funasr+edge-TTS+deepseek，也可以使用BaiduASR的STT的api接口
+##server端：
+可选funasr、百度ASR
+edge-TTS、百度TTS
+deepseek、chatglm
 本地部署，需要安装ffmpeg
