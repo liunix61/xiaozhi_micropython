@@ -34,11 +34,11 @@ class VoiceRecorder:
         self.volume_factor = 0.13
 
         # 配置Wi-Fi连接信息 替换为自己的wifi信息
-        self.WIFI_SSID = "zhou"
-        self.WIFI_PASSWORD = "123456"
+        self.WIFI_SSID = "xxx"
+        self.WIFI_PASSWORD = "xxx"
 
         # 服务器配置
-        self.SERVER_IP = "192.168.1.12" #replace with your server IP address
+        self.SERVER_IP = "192.168.2.110" #根据实际的服务器端地址
         self.SERVER_PORT = 8888
 
         # 初始化I2S
@@ -72,7 +72,7 @@ class VoiceRecorder:
             mode=I2S.TX,
             bits=16,
             format=I2S.MONO,
-            rate=8000,
+            rate=16000,
             ibuf=2048  # 减小缓冲区
             )
         print(f"[INIT] INMP441采样率: {self.sample_rate} INMP441缓冲区: {self.buf_size}字节")
