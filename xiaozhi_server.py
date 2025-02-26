@@ -7,6 +7,117 @@ from openai import OpenAI
 from funasr import AutoModel
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
 
+import base64
+import requests
+import json
+
+#百度ASR 替换为自己的百度api—key，secret-key
+class SpeechRecognizer:
+    """百度语音识别API封装类"""
+
+    def __init__(self, api_key="xxx", secret_key="xxx"):
+        """
+        初始化语音识别器
+        :param api_key: 百度API Key
+        :param secret_key: 百度Secret Key
+        """
+        self.api_key = api_key
+        self.secret_key = secret_key
+        self.token_url = "https://aip.baidubce.com/oauth/2.0/token"
+        self.recognize_url = "https://vop.baidubce.com/server_api"
+        self.access_token = None
+
+    def _get_access_token(self):
+        """获取百度语音API的访问令牌"""
+        params = {
+            "grant_type": "client_credentials",
+            "client_id": self.api_key,
+            "client_secret": self.secret_key
+        }
+        try:
+            response = requests.post(self.token_url, params=params, timeout=5)
+            response.raise_for_status()
+            self.access_token = response.json().get("access_token")
+            if not self.access_token:
+                raise ValueError("无效的访问令牌")
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"获取Access Token失败: {str(e)}")
+
+    def _validate_audio_file(self, file_path):
+        """验证音频文件有效性"""
+        if not os.path.exists(file_path):
+            raise FileNotFoundError("音频文件不存在")
+        if not file_path.lower().endswith('.wav'):
+            raise ValueError("仅支持WAV格式音频文件")
+        if os.path.getsize(file_path) > 1024 * 1024 * 10:  # 10MB限制
+            raise ValueError("音频文件大小超过10MB限制")
+
+    def _encode_audio_to_base64(self, file_path):
+        """将WAV文件编码为Base64"""
+        try:
+            with open(file_path, "rb") as audio_file:
+                audio_data = audio_file.read()
+                return base64.b64encode(audio_data).decode('utf-8')
+        except IOError as e:
+            raise Exception(f"文件读取失败: {str(e)}")
+
+    def _send_recognition_request(self, payload):
+        """发送语音识别API请求"""
+        headers = {'Content-Type': 'application/json'}
+        try:
+            response = requests.post(
+                self.recognize_url, 
+                headers=headers, 
+                data=payload, 
+                timeout=10
+            )
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"API请求失败: {str(e)}")
+
+    def recognize(self, client_socket, audio_path):
+        """
+        语音识别主方法
+        :param audio_path: 音频文件路径
+        :return: 识别结果文本
+        """
+        try:
+            # 文件验证
+            self._validate_audio_file(audio_path)
+            
+            # 获取访问令牌
+            if not self.access_token:
+                self._get_access_token()
+            
+            # 编码音频文件
+            speech_base64 = self._encode_audio_to_base64(audio_path)
+            
+            # 构造请求参数
+            payload = json.dumps({
+                "format": "wav",
+                "rate": 8000,
+                "channel": 1,
+                "cuid": "5NNHy4FsIbdFu1qOU8T6c559oHh4bbp3",
+                "speech": speech_base64,
+                "len": os.path.getsize(audio_path),
+                "token": self.access_token
+            }, ensure_ascii=False)
+            
+            # 发送请求并处理响应
+            result = self._send_recognition_request(payload)
+            
+            if 'result' in result:
+                return result['result'][0]
+            if 'err_msg' in result:
+                raise Exception(f"识别错误: {result['err_msg']}")
+            raise Exception("未知的API响应格式")
+            
+        except Exception as e:
+            print(f"⚠️ API错误：{str(e)}")
+            time.sleep(0.03)# 结束客户端等待服务器返回播放数据
+            client_socket.sendall("END_OF_STREAM\n".encode())
+
 
 # FunASR语音识别，语音转文字
 class INMP441ToWAV:
@@ -86,17 +197,17 @@ class FunasrSpeechToText:
             time.sleep(0.03)# 结束客户端等待服务器返回播放数据
             client_socket.sendall("END_OF_STREAM\n".encode())
 
-# deepseek 的回复
+# deepseek 的回复 替换为自己的deepseek-api-key  和api的base-url
 class DeepSeekReply:
     def __init__(self):
-        self.api_key = "sk-xxxx" #替换为自己的api-key
-        self.base_url = "https://api.siliconflow.cn/v1" #这里使用的是硅基流动的api-url
-        self.role_setting = "（习惯简短表达，不要多行，不要回车，回答不超过50个字，你是一个叫小智的温柔女朋友，声音好听，只要中文，爱用网络梗，最后抛出一个提问。）"
+        self.api_key = "sk-xxxx"
+        self.base_url = "https://api.siliconflow.cn/v1"
+        # self.role_setting = "（习惯简短表达，不要多行，不要回车，你是一个叫小智的温柔女朋友，声音好听，只要中文，爱用网络梗，最后抛出一个提问。）"
         # self.role_setting = "（习惯简短表达，最后抛出一个提问。）"
         # self.role_setting = "（不要多行）"
         # self.role_setting = "（你是DeepSeek-R1，由深度求索公司开发的智能助手，主要帮助您回答问题和提供信息。）"
         # self.role_setting = '（最后抛出一个提问）'
-        #self.role_setting = '（习惯简短表达）'
+        self.role_setting = '（习惯简短表达）'
         self.deepseek_model = 'deepseek-ai/DeepSeek-V2.5'
         # self.deepseek_model = 'deepseek-ai/DeepSeek-V3'
         # self.deepseek_model = 'Qwen/Qwen2.5-7B-Instruct'
@@ -135,7 +246,7 @@ class DeepSeekReply:
 class EdgeTTSTextToSpeech:
     def __init__(self):
         self.voice = "zh-CN-XiaoxiaoNeural"# zh-TW-HsiaoYuNeural
-        self.rate = '-10%'
+        self.rate = '+16%'
         self.volume = '+0%'
         self.pitch = '+0Hz'
 
@@ -217,7 +328,8 @@ class XiaoZhi_Ai_TCPServer:
         self.received_audio_filename = save_path
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.fstt = FunasrSpeechToText()# FunASR 语音识别，语音转文字
+        #self.fstt = FunasrSpeechToText()# FunASR 语音识别，语音转文字
+        self.fstt = SpeechRecognizer()# BaiduASR 语音识别，语音转文字
         self.dsr = DeepSeekReply()# deepseek 的回复
         self.etts = EdgeTTSTextToSpeech()# EdgeTTS 文字生成语音
         self.mapl = MAX98357AudioPlay()# MAX98357 播放音频
@@ -241,7 +353,7 @@ class XiaoZhi_Ai_TCPServer:
                             inmp441wav_path = self.inmp441tw.receive_inmp441_data(conn)
 
                             # FunASR语音识别，语音转文字
-                            fstt_text = self.fstt.recognize_speech(conn, inmp441wav_path)
+                            fstt_text = self.fstt.recognize(conn, inmp441wav_path)
                             print("FunASR 语音识别---：", fstt_text)
 
                             # DeepSeek 生成回复
