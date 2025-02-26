@@ -11,11 +11,42 @@ import base64
 import requests
 import json
 
-#百度ASR 替换为自己的百度api—key，secret-key
+from zhipuai import ZhipuAI
+
+class ZhipuAIClient:
+    def __init__(self, api_key="xxx"): #替换为自己的chatglm apikey
+        self.client = ZhipuAI(api_key=api_key)
+
+    def generate_slogan(self, client_socket, product_info):
+        try:
+            response = self.client.chat.completions.create(
+                model="glm-4-flash",  # 请填写您要调用的模型名称
+                messages=[
+                    {"role": "user", "content": "你是一个叫小智的温柔女朋友，声音好听，只要中文，爱用网络梗，最后抛出一个提问。"},
+                    {"role": "user", "content": product_info},
+                ],
+                stream=True,
+            )
+            content_list = []
+            for chunk in response:
+                content = chunk.choices[0].delta.content
+                content_list.append(content)
+            # 1. 去掉'练习', '跑步', '需要',==练习跑步需要
+            processed_sentence = ''.join([element for element in content_list if element])
+            # 2.去掉  ###，- **， **
+            cleaned_text = re.sub(r'### |^- \*\*|\*\*', '', processed_sentence, flags=re.MULTILINE)
+            return cleaned_text
+            #return response.choices[0].message.content
+        except Exception as e:
+            print(f"⚠️ API错误：{str(e)}")
+            # TTS生成失败，结束客户端等待服务器返回播放数据
+            time.sleep(0.03)
+            client_socket.sendall("END_OF_STREAM\n".encode())
+        
 class SpeechRecognizer:
     """百度语音识别API封装类"""
 
-    def __init__(self, api_key="xxx", secret_key="xxx"):
+    def __init__(self, api_key="xxx", secret_key="xxx"): #替换为自己baiduASR的api-key和secret-key
         """
         初始化语音识别器
         :param api_key: 百度API Key
@@ -197,18 +228,18 @@ class FunasrSpeechToText:
             time.sleep(0.03)# 结束客户端等待服务器返回播放数据
             client_socket.sendall("END_OF_STREAM\n".encode())
 
-# deepseek 的回复 替换为自己的deepseek-api-key  和api的base-url
+# deepseek 的回复
 class DeepSeekReply:
     def __init__(self):
-        self.api_key = "sk-xxxx"
-        self.base_url = "https://api.siliconflow.cn/v1"
+        self.api_key = "sk-xxx"替换为自己deepseek的api-key
+        self.base_url = "https://api.deepseek.com/v1"
         # self.role_setting = "（习惯简短表达，不要多行，不要回车，你是一个叫小智的温柔女朋友，声音好听，只要中文，爱用网络梗，最后抛出一个提问。）"
         # self.role_setting = "（习惯简短表达，最后抛出一个提问。）"
         # self.role_setting = "（不要多行）"
         # self.role_setting = "（你是DeepSeek-R1，由深度求索公司开发的智能助手，主要帮助您回答问题和提供信息。）"
         # self.role_setting = '（最后抛出一个提问）'
         self.role_setting = '（习惯简短表达）'
-        self.deepseek_model = 'deepseek-ai/DeepSeek-V2.5'
+        self.deepseek_model = 'deepseek-chat'
         # self.deepseek_model = 'deepseek-ai/DeepSeek-V3'
         # self.deepseek_model = 'Qwen/Qwen2.5-7B-Instruct'
         # self.deepseek_model = 'Pro/deepseek-ai/DeepSeek-R1'
@@ -330,7 +361,8 @@ class XiaoZhi_Ai_TCPServer:
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         #self.fstt = FunasrSpeechToText()# FunASR 语音识别，语音转文字
         self.fstt = SpeechRecognizer()# BaiduASR 语音识别，语音转文字
-        self.dsr = DeepSeekReply()# deepseek 的回复
+        #self.dsr = DeepSeekReply()# deepseek 的回复
+        self.dsr = ZhipuAIClient()# chatGLM 的回复
         self.etts = EdgeTTSTextToSpeech()# EdgeTTS 文字生成语音
         self.mapl = MAX98357AudioPlay()# MAX98357 播放音频
         self.fftw = FFmpegToWav(sample_rate=8000, channels=1, bit_depth=16)# # FFmpeg 音频转换器24100, 44100,32000
@@ -358,7 +390,7 @@ class XiaoZhi_Ai_TCPServer:
 
                             # DeepSeek 生成回复
                             if fstt_text.strip():
-                                gdr_text = self.dsr.get_deepseek_response(conn, fstt_text)
+                                gdr_text = self.dsr.generate_slogan(conn, fstt_text)
                                 print("DeepSeek 的回复---：", gdr_text)
 
                                 # EdgeTTS 文字生成语音
