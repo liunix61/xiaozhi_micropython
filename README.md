@@ -8,4 +8,4 @@ server端：
 可选funasr、百度ASR
 edge-TTS、百度TTS
 deepseek、chatglm
-本地部署，需要安装ffmpeg
+需要安装ffmpeg
