@@ -1,5 +1,5 @@
 xiaozhi_micropython
-基于大佬开源的micropython的xiaozhi，运行在xiao-esp32s3-sense
+基于大佬开源的micropython的xiaozhi，运行在xiao-esp32s3-sense(1.24)
 
 client端：
 使用xiao-esp32s3-sense+inmp441+max98357
