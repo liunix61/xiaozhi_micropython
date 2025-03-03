@@ -1,7 +1,3 @@
-<p align="center">  
-xiaozhi_micropython！  
-</p>   
-
 # 基于大佬开源的micropython的xiaozhi，运行在xiao-esp32s3-sense(1.24)
 
 ## client端：
