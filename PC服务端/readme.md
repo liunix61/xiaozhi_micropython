@@ -111,31 +111,6 @@ python xiaozhi_server.py
 python xiaozhi_server.py
 ```
 
-### 2. 客户端连接
-
-客户端可以通过TCP连接到服务器，发送语音数据并接收生成的语音回复。以下是一个简单的客户端示例：
-
-```python
-import socket
-
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect(('服务器IP', 8888))
-
-# 发送语音数据
-with open('audio.wav', 'rb') as f:
-    audio_data = f.read()
-    client_socket.sendall(audio_data)
-
-# 接收语音回复
-with open('response.wav', 'wb') as f:
-    while True:
-        data = client_socket.recv(1024)
-        if not data:
-            break
-        f.write(data)
-
-client_socket.close()
-```
 
 ## 贡献
 
