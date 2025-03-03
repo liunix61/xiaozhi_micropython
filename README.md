@@ -5,9 +5,8 @@
 
 ## server端：
   可选funasr、百度ASR  
-  
   edge-TTS、百度TTS  
-  deepseek、chatglm< br >
+  deepseek、chatglm  
   使用edge-TTS需要安装ffmpeg  
   
 
