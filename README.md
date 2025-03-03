@@ -10,7 +10,7 @@
   使用edge-TTS需要安装ffmpeg  
   
 
-## 使用向导文件：
+## 固件及程序调试向导文件：
   micropython 固件烧录参照文件夹StepsForConfiguration  
   
   Thonny 软件安装及固件烧录向导文件参照文件夹StepsForInstallation  
