@@ -76,6 +76,11 @@ if __name__ == "__main__":
         machine.reset()
 ```
 
+## Todo
+□ ssd1306显示表情和文字
+□ 摄像头用于人脸识别和图像解读
+□ 舵机控制用于人脸追踪
+
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request 来改进本项目。
