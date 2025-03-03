@@ -1,4 +1,5 @@
-# 基于大佬开源的micropython的xiaozhi，运行在xiao-esp32s3-sense(1.24)
+# 基于大佬开源的micropython的xiaozhi  
+运行在xiao-esp32s3-sense和PC端(micropython固件版本1.24)
 ## 1.micropython固件烧录及程序调试向导文件：
   micropython 固件烧录参照文件夹StepsForConfiguration  
   
