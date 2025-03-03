@@ -5,14 +5,14 @@
 
 ## server端：
   可选funasr、百度ASR
-*[ ]edge-TTS、百度TTS
-*[ ]deepseek、chatglm
-*[ ]使用edge-TTS需要安装ffmpeg
+  edge-TTS、百度TTS
+  deepseek、chatglm
+  使用edge-TTS需要安装ffmpeg
 
 ## 使用向导文件：
-*[ ]micropython 固件烧录参照文件夹StepsForConfiguration
-*[ ]Thonny 软件安装及固件烧录向导文件参照文件夹StepsForInstallation
-*[ ].py文件上传向导参考StepsForUploadingFiles
+  micropython 固件烧录参照文件夹StepsForConfiguration
+  Thonny 软件安装及固件烧录向导文件参照文件夹StepsForInstallation
+  .py文件上传向导参考StepsForUploadingFiles
 
 ## 使用截图：
 <div align="center">
