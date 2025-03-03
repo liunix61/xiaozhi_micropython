@@ -59,7 +59,7 @@ pip install requests soundfile pydub edge_tts openai zhipuai funasr
 运行 `main.py` 启动服务器：
 
 ```bash
-python main.py
+python xiaozhi_server.py
 ```
 
 服务器启动后，会监听指定的IP和端口（默认 `0.0.0.0:8888`），等待客户端连接。
@@ -108,7 +108,7 @@ python main.py
 ### 1. 启动服务器
 
 ```bash
-python main.py
+python xiaozhi_server.py
 ```
 
 ### 2. 客户端连接
