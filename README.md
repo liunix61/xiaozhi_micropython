@@ -4,15 +4,20 @@
   使用xiao-esp32s3-sense+inmp441+max98357
 
 ## server端：
-  可选funasr、百度ASR[空格][空格][Enter]
-  edge-TTS、百度TTS< br >
+  可选funasr、百度ASR  
+  
+  edge-TTS、百度TTS  
   deepseek、chatglm< br >
-  使用edge-TTS需要安装ffmpeg< br >
+  使用edge-TTS需要安装ffmpeg  
+  
 
 ## 使用向导文件：
-  micropython 固件烧录参照文件夹StepsForConfiguration< br >
-  Thonny 软件安装及固件烧录向导文件参照文件夹StepsForInstallation< br >
-  .py文件上传向导参考StepsForUploadingFiles< br >
+  micropython 固件烧录参照文件夹StepsForConfiguration  
+  
+  Thonny 软件安装及固件烧录向导文件参照文件夹StepsForInstallation  
+  
+  .py文件上传向导参考StepsForUploadingFiles  
+  
 
 ## 使用截图：
 <div align="center">
