@@ -16,5 +16,5 @@ Thonny 软件安装及固件烧录向导文件参照文件夹StepsForInstallatio
 .py文件上传向导参考StepsForUploadingFiles
 
 <div align="center">
-  <img src="[https://github.com/******/dbscan_clustering_algorithm/blob/master/data/DBSCAN.png](https://github.com/zhou19830318/xiaozhi_micropython/blob/main/xiaozhi%20_AI.png)">
+  <img src="https://github.com/zhou19830318/xiaozhi_micropython/blob/main/xiaozhi%20_AI.png">
 </div>
