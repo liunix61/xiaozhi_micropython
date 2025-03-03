@@ -4,7 +4,7 @@
   使用xiao-esp32s3-sense+inmp441+max98357
 
 ## server端：
-  可选funasr、百度ASR< br >
+  可选funasr、百度ASR[空格][空格][Enter]
   edge-TTS、百度TTS< br >
   deepseek、chatglm< br >
   使用edge-TTS需要安装ffmpeg< br >
