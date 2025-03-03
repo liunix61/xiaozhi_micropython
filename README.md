@@ -14,3 +14,7 @@ deepseek、chatglm
 micropython 固件烧录参照文件夹StepsForConfiguration
 Thonny 软件安装及固件烧录向导文件参照文件夹StepsForInstallation
 .py文件上传向导参考StepsForUploadingFiles
+
+<div align="center">
+  <img src="https://github.com/******/dbscan_clustering_algorithm/blob/master/data/DBSCAN.png">
+</div>
