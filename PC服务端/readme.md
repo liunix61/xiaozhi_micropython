@@ -108,7 +108,12 @@ python xiaozhi_server.py
 ### 1. 启动服务器
 
 ```bash
-python xiaozhi_server.py
+#基于百度语音识别、智谱清言对话大模型、字节语音合成
+python xiaozhi_server_baiduasr_chatglm_bytedancetts.py
+```
+```bash
+#基于funasr语音识别、deekseek对话大模型、edge语音合成
+python xiaozhi_server_funasr_deepseek_edgetts.py
 ```
 
 
