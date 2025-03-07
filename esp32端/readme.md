@@ -53,28 +53,7 @@
 - **内存管理**: 由于 MicroPython 的内存限制，建议在使用过程中定期执行垃圾回收 (`gc.collect()`) 以避免内存溢出。
 - **网络稳定性**: 在网络不稳定的环境下，系统会自动重连服务器，但可能会影响实时性。
 
-## 示例代码
 
-```python
-if __name__ == "__main__":
-    import gc
-    gc.collect()
-    
-    print("\n=== INMP441语音检测系统 ===")
-    try:
-        recorder = VoiceRecorder()
-        print("提示：首次使用建议进行阈值校准")
-        print("--------------------------------")
-        recorder.start()
-    except MemoryError:
-        print("内存不足，系统重启...")
-        import machine
-        machine.reset()
-    except Exception as e:
-        print(f"系统错误: {e}")
-        import machine
-        machine.reset()
-```
 
 ## Todo
 -[  ] ssd1306显示表情和文字  
