@@ -33,7 +33,7 @@
    - 在代码中修改 `WIFI_SSID` 和 `WIFI_PASSWORD` 为你的 Wi-Fi 名称和密码。
 
 3. **配置服务器**:
-   - 修改 `SERVER_IP` 和 `SERVER_PORT` 为你的服务器地址和端口。
+   - 修改 `SERVER_IP` 和 `SERVER_PORT` 为你的服务器(本机或者云服务器)地址和端口。
 
 4. **上传代码**:
    - 将代码文件xiaozhi.py上传到 ESP32 并运行。
