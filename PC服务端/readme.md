@@ -56,7 +56,7 @@ pip install requests soundfile pydub edge_tts openai zhipuai funasr
 
 ### 3. 启动服务器
 
-运行 `main.py` 启动服务器：
+启动服务器：
 
 ```bash
 python xiaozhi_server_baiduasr_chatglm_bytedancetts.py
