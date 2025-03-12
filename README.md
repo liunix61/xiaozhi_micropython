@@ -20,7 +20,7 @@
 
 ## 4.使用截图：
 <div align="center">
-  <img src="https://github.com/zhou19830318/xiaozhi_micropython/blob/main/xiaozhi%20_AI.png">
+  <img src="https://github.com/zhou19830318/xiaozhi_micropython/blob/main/xiaozhi.png">
 </div>
 
 ## 5.鸣谢：
