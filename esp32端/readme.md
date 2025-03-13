@@ -28,6 +28,7 @@
 1. **硬件连接**:
    - 将 INMP441 的 SCK、WS、SD 引脚分别连接到 ESP32 的 GPIO2、GPIO3、GPIO4。
    - 将 MAX98357 的 SCK、WS、SD 引脚分别连接到 ESP32 的 GPIO9、GPIO8、GPIO7。
+   - 上述引脚连接根据自己情况更改
 
 2. **配置 Wi-Fi**:
    - 在代码中修改 `WIFI_SSID` 和 `WIFI_PASSWORD` 为你的 Wi-Fi 名称和密码。
