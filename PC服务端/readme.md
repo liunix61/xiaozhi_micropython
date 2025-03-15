@@ -120,6 +120,8 @@ python xiaozhi_server_baiduasr_chatglm_bytedancetts.py
 python xiaozhi_server_funasr_deepseek_edgetts.py
 ```
 
+## Todo
+[ ]云服务器部署
 
 ## 贡献
 
