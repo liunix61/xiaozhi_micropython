@@ -58,8 +58,8 @@ class VoiceRecorder:
         self.volume_factor = 0.53
 
         # 配置Wi-Fi连接信息 替换为自己的wifi信息
-        self.WIFI_SSID = "zhou"
-        self.WIFI_PASSWORD = "18961210318"
+        self.WIFI_SSID = "xxx"
+        self.WIFI_PASSWORD = "xxx"
 
         # 服务器配置
         self.SERVER_IP = "192.168.1.9" #根据实际的服务器端地址
