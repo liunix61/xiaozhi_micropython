@@ -12,7 +12,7 @@ from easydisplay import EasyDisplay
 '''
 引脚连接图
     st7789       esp32s3
-1    LEDA			BL
+1    LEDA			bl
 2    GND			GND
 3    RESET			res
 4    RS				dc
