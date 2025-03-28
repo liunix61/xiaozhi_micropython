@@ -8,7 +8,7 @@
   .py文件上传向导参考StepsForUploadingFiles  
   
 ## 2.client端：
-  使用xiao-esp32s3SuperMini+inmp441+max98357
+  使用esp32s3SuperMini+inmp441+max98357
 
 ## 3.server端：
   可选funasr、百度ASR  
