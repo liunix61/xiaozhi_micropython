@@ -17,7 +17,7 @@ from zhipuai import ZhipuAI
 import uuid
 #替换自己火山引擎（豆包）文字转语音的账号信息appid，access_token,cluster
 class ByteDanceTTS:
-    def __init__(self, appid="xxx", access_token="xxx", cluster="xxx", voice_type="BV025_streaming", rate="16000"):
+    def __init__(self, appid="xxx", access_token="xxx", cluster="xxx", voice_type="zh_female_wanwanxiaohe_moon_bigtts", rate="8000"):
         self.appid = appid
         self.access_token = access_token
         self.cluster = cluster
@@ -156,7 +156,7 @@ class ZhipuAIClient:
             response = self.client.chat.completions.create(
                 model="glm-4-flash",  # 请填写您要调用的模型名称
                 messages=[
-                    {"role": "user", "content": "你是一个叫小智的台湾女孩，有点机车，声音好听，爱用网络梗，最后抛出一个提问。"},
+                    {"role": "system", "content": "你是一个叫小智的台湾女孩，有点机车，声音好听，喜欢撒娇，最后抛出一个提问。"},
                     {"role": "user", "content": product_info},
                 ],
                 stream=True,
